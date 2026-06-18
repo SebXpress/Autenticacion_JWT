@@ -13,7 +13,7 @@ export class AuthController {
         // 5. Si son inválidas, responder con status 401.
     
         //obtenemos el usuario y contraseña de la peticion
-        const {user, password} = req.body;
+        const {username, password} = req.body;
 
         // simulamos que verificamos las credenciales en una base de datos
         if(username === 'admin' && password === 'secure1230'){
