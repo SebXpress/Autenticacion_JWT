@@ -12,8 +12,8 @@ export const authMiddleware = (req, res, next) => {
     const autHeader = req.headers['authorization'];
 
     // si no existe la cabecera o no tiene la palabra, bloqueamos el acceso
-    if(!autHeader || !autHeader.startsWith('Bearer')){
-        return res.satatus(401).json({
+    if(!autHeader || !autHeader.startsWith('Bearer ')){
+        return res.status(401).json({
             error: 'Unauthorized',
             message: 'acceso denegado, ausencia de bearer token en las cabeceras '
         });
@@ -34,7 +34,7 @@ export const authMiddleware = (req, res, next) => {
     }catch (error){
         // comprobamos si el error es por el tiempo de expiracion
         if(error.name === 'TokenExpiredError'){
-            return res.satatus(401).json({
+            return res.status(401).json({
                 error: 'TokenExpiredError',
                 message: 'El token ha expirado, supero el limite de 1 minuto esperado',
             });

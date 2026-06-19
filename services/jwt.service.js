@@ -22,7 +22,7 @@ export class JwtService {
         const isAsymmetric = config.ALGORITHM === 'RS256';
         
         // si es asimetrico usamos la llave privada, sino el secreto simple
-        const secretOrKey = isAsymmetric? config.PRIVATE_KEY : config.JWT_SECRET;
+        const secretOrKey = isAsymmetric ? config.PRIVATE_KEY : config.JWT_SECRET;
 
         // validacion de seguridad por si no se cargo el archivo pem
         if(!secretOrKey){
@@ -55,13 +55,17 @@ export class JwtService {
         // revisamos nuevamente el tipo de algoritmo
         const  isAsymmetric = config.ALGORITHM === 'RS256';
 
+        const secretOrKey = isAsymmetric ? config.PRIVATE_KEY : config.JWT_SECRET;
+
         // si es asimetrico usamos la llave publica
         if(!secretOrKey){
             throw new Error(`falta la llave o secreto de verificacion para el algoritmo ${config.ALGORITHM}`);
         }
 
         // verificamos la firma y forzamos que respete el algoritmo configurado
-        return jwt.verify(token,secretOrKey, { algorithms: [config.ALGORITHM] });
+        return jwt.verify(token, secretOrKey, {
+            algorithms: [config.ALGORITHM]
+        });
     }
     
 }
