@@ -1,36 +1,44 @@
+//importamos sentry que fue recienteemente agregado
+import * as Sentry from '@sentry/node';
 export class ResourceController {
-    /**
-     * Simula un recurso privado del Microservicio Alpha.
-     */
     static getAlphaPrivateData(req, res) {
-        // TODO: Implementar respuesta para Microservicio Alpha.
-        // 1. Responder con un mensaje que indique acceso exitoso al Servicio Alpha.
-        // 2. Incluir datos del usuario autenticado (req.user) en la respuesta.
-        
-        //respondemos con exito indicando que se entro al microservicio alfa
-        return res.status(200).json({
-            service: 'Microservicio Alpha',
-            status: 'Authorized',
-            message: 'Conexion exitosa a la zona segura de alpha de forma stateless',
+        // error operacional: simulamos un fallo critico de base de datos
+        // al lanzar la excepcion cruda, sentry lo capturara automaticamente
+        throw new Error("conexion perdida con la base de datos central");
 
-            // enviamos los datos del usuario extraidos del token por el middleware
-            user: req.user
+        // el codigo inferior nunca se ejecutara debido al throw
+        return res.status(200).json({
+            service: 'Microservicio Alpha'
         });
     }
 
-    /**
-     * Simula un recurso privado del Microservicio Beta.
-     */
     static getBetaPrivateData(req, res) {
-        // TODO: Implementar respuesta para Microservicio Beta.
-        // 1. Responder con un mensaje que indique acceso exitoso al Servicio Beta.
-        // 2. Incluir datos del usuario autenticado (req.user) en la respuesta.
-        
-        //respondemos con exito indicando que se entro al microservicio beta
-        return res.status(200).json({
-            service: 'Microservicio Beta',
-            status: 'Authorized',
-            message: 'Conexion exitosa a la zona segura de beta utilizando llave publica'
-        });
+        try {
+            // simulamos que un proceso interno fallo en beta
+            throw new Error("division por cero al calcular metricas del usuario");
+        } catch (error) {
+            // captura explicita del error reportando a sentry
+            Sentry.withScope((scope) => {
+                // agregamos etiquetas personalizadas para el dashboard
+                scope.setTag("microservice", "beta");
+                scope.setTag("error_type", "calculo_metricas");
+
+                // adjuntamos el contexto del usuario (sin contraseñas)
+                // req.user existe gracias a nuestro middleware stateless
+                scope.setUser({ 
+                    id: req.user.sub, 
+                    username: req.user.name 
+                });
+
+                // disparamos la alerta manualmente
+                Sentry.captureException(error);
+            });
+
+            // respondemos al cliente de forma controlada
+            return res.status(500).json({
+                error: 'InternalError',
+                message: 'ocurrio un fallo interno en beta, pero ya fue reportado a monitoreo.'
+            });
+        }
     }
 }
