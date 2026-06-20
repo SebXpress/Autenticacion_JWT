@@ -8,5 +8,6 @@ export const config = {
     JWT_SECRET: process.env.JWT_SECRET,
     PRIVATE_KEY: process.env.PRIVATE_KEY_PATH ? fs.readFileSync(process.env.PRIVATE_KEY_PATH, 'utf8') : null,
     PUBLIC_KEY: process.env.PUBLIC_KEY_PATH ? fs.readFileSync(process.env.PUBLIC_KEY_PATH, 'utf8') : null,
-    ALGORITHM: process.env.JWT_ALGORITHM || 'HS256' // 'HS256' o 'RS256'
+    ALGORITHM: process.env.JWT_ALGORITHM || 'HS256', // 'HS256' o 'RS256'
+    SENTRY_DSN: process.env.SENTRY_DSN // agregamos la lectura del dsn
 };
